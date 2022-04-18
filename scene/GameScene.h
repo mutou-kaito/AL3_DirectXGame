@@ -1,8 +1,8 @@
 ﻿#pragma once
 
 #include "Audio.h"
-#include "DirectXCommon.h"
 #include "DebugText.h"
+#include "DirectXCommon.h"
 #include "Input.h"
 #include "Model.h"
 #include "SafeDelete.h"
@@ -51,4 +51,24 @@ class GameScene {
 	/// <summary>
 	/// ゲームシーン用
 	/// </summary>
+	//画像を管理するためのん変数の宣言
+	//アンファインドint型の略　32は32bit = 4byte
+	//アンダーバーはメンバ変数ってこと
+	uint32_t Graph_ = 0;
+	// Spriteクラスのsprite_を宣言、nullptrはパターン無しだろうけどなんのパターン無しなのかよくわからん
+	Sprite* sprite_ = nullptr;
+	//上の=0 とか　nullptrは無くてもいいけどあったほうがいいらしい
+
+	// 3dモデル
+	Model* model_ = nullptr;
+	//モデルの座標
+	WorldTransform worldTransform_;
+	//多分モデルを映すカメラの場所？
+	ViewProjection viewProjection_;
+
+	//サウンド
+	uint32_t soundDataHandle_ = 0;
+
+	//プログラム開始から何ループ経過したかを表示する
+	uint32_t Value_ = 0;
 };
