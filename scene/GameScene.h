@@ -51,4 +51,17 @@ class GameScene {
 	/// <summary>
 	/// ゲームシーン用
 	/// </summary>
+	
+	//textureの宣言
+	uint32_t TextureHandle_ = 0;
+	//モデルの宣言
+	Model* model_ = nullptr;
+
+	//ワールド内のどこにいるかの宣言用
+	WorldTransform WorldTransdorm_;
+	//ようしらん
+	ViewProjection ViewProjection_;
+
+	float x;
+	float y;
 };
