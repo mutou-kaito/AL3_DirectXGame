@@ -11,6 +11,7 @@
 #include "WorldTransform.h"
 #include <DirectXMath.h>
 
+
 /// <summary>
 /// ゲームシーン
 /// </summary>
@@ -57,11 +58,11 @@ class GameScene {
 	//モデルの宣言
 	Model* model_ = nullptr;
 
-	//ワールド内のどこにいるかの宣言用
-	WorldTransform WorldTransdorm_;
-	//ようしらん
+	//モデルがワールド内のどこにいるかの宣言用
+	WorldTransform WorldTransdorm_[100];
+	//カメラの座標
 	ViewProjection ViewProjection_;
 
-	float x;
-	float y;
+	float ViewAngle = 0.0f;
+	
 };
