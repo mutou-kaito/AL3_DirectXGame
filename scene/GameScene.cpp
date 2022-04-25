@@ -49,117 +49,132 @@ void GameScene::Initialize() {
 		//モデル周りの初期化
 		WorldTransdorm_[i].Initialize();
 	}
-	//カメラの場所
-	ViewProjection_.eye = {0, 0, -10};
-	//カメラの見てる場所（ターゲットの場所
-	ViewProjection_.target = {10, 0, 0};
-	//カメラの上方向ベクトル
-	ViewProjection_.up = {cosf(XM_PI / 4.0f), sinf(XM_PI / 4.0f), 0.0f};
+
+	//カメラ周りの初期化
+	ViewProjection_.fovAngleY = XMConvertToRadians(10.0f);
+	//アスペクト比、画面の高さと幅の比率、幅/縦で出す
+	ViewProjection_.aspectRatio = 1.5f;
+	//ニアクリップ、ファークリップ、描画する範囲（奥行）
+	//ニアクリップ、描画する一番近いところ
+	ViewProjection_.nearZ = 52.0f;
+	//ファークリップ、描画する一番遠いところ
+	ViewProjection_.farZ = 53.0f;
 
 	ViewProjection_.Initialize();
 
 }
 
 void GameScene::Update() {
-	//カメラ移動速度用の変数の宣言
-	XMFLOAT3 move = {0, 0, 0};
-	//移動速度の初期化
-	const float kEyeSpeed = 0.2f;
+	#pragma region//02_02の内容だからコメントアウト
+	////カメラ移動速度用の変数の宣言
+	//XMFLOAT3 move = {0, 0, 0};
+	////移動速度の初期化
+	//const float kEyeSpeed = 0.2f;
+	//
+	////シフト押してるときはカメラのターゲット移動
+	// if (input_->PushKey(DIK_LSHIFT)) {
+	//	//キー入力
+	//	if (input_->PushKey(DIK_D)) {
+	//		move = {kEyeSpeed, 0, 0};
+	//	} else if (input_->PushKey(DIK_A)) {
+	//		move = {-kEyeSpeed, 0, 0};
+	//	}
+
+	//	if (input_->PushKey(DIK_W)) {
+	//		move = {0, kEyeSpeed, 0};
+	//	} else if (input_->PushKey(DIK_S)) {
+	//		move = {0, -kEyeSpeed, 0};
+	//	}
+
+	//	if (input_->PushKey(DIK_R)) {
+	//		move = {0, 0, kEyeSpeed};
+	//	} else if (input_->PushKey(DIK_F)) {
+	//		move = {0, 0, -kEyeSpeed};
+	//	}
+	//	//移動速度の加算
+	//	ViewProjection_.target.x += move.x;
+	//	ViewProjection_.target.y += move.y;
+	//	ViewProjection_.target.z += move.z;
+	//} 
+	////シフト押してないときはカメラの場所移動
+	//else {
+	//	//キー入力
+	//	if (input_->PushKey(DIK_D)) {
+	//		move = {kEyeSpeed, 0, 0};
+	//	} else if (input_->PushKey(DIK_A)) {
+	//		move = {-kEyeSpeed, 0, 0};
+	//	}
+
+	//	if (input_->PushKey(DIK_W)) {
+	//		move = {0, kEyeSpeed, 0};
+	//	} else if (input_->PushKey(DIK_S)) {
+	//		move = {0, -kEyeSpeed, 0};
+	//	}
+
+	//	if (input_->PushKey(DIK_R)) {
+	//		move = {0, 0, kEyeSpeed};
+	//	} else if (input_->PushKey(DIK_F)) {
+	//		move = {0, 0, -kEyeSpeed};
+	//	}
+	//	//移動速度の加算
+	//	ViewProjection_.eye.x += move.x;
+	//	ViewProjection_.eye.y += move.y;
+	//	ViewProjection_.eye.z += move.z;
+	//}
+
+	////上方向の回転速度の速さ
+	//const float kUpRotSpeed = 0.05f;
+
+	//if (input_->PushKey(DIK_SPACE)) {
+	//	ViewAngle += kUpRotSpeed;
+	//	//2PIを超えたら0に戻す
+	//	ViewAngle = fmodf(ViewAngle, XM_2PI);
+	//}
+
+	////上方向ベクトルを計算（半径1の円周上の座標
+	//ViewProjection_.up = {cosf(ViewAngle), sinf(ViewAngle), 0.0f};
+
+
+	//debugText_->SetPos(50, 50);
+	//debugText_->Printf(
+	//  "eye:(%f,%f,%f)\ntarget:(%f,%f,%f)", ViewProjection_.eye.x, ViewProjection_.eye.y, ViewProjection_.eye.z,
+	//	ViewProjection_.target.x, ViewProjection_.target.y, ViewProjection_.target.z);
+	#pragma endregion
 	
-	//シフト押してるときはカメラのターゲット移動
-	/* if (input_->PushKey(DIK_LSHIFT)) {
-		//キー入力
-		if (input_->PushKey(DIK_D)) {
-			move = {kEyeSpeed, 0, 0};
-		} else if (input_->PushKey(DIK_A)) {
-			move = {-kEyeSpeed, 0, 0};
-		}
+	//自作
+	/*float FovSpeed = 0.02f;
+	if (input_->PushKey(DIK_W) && ViewProjection_.fovAngleY < 3.14)
+		ViewProjection_.fovAngleY += XMConvertToRadians(FovSpeed);
+	else if (input_->PushKey(DIK_S) && ViewProjection_.fovAngleY > 0.02)
+		ViewProjection_.fovAngleY -= XMConvertToRadians(FovSpeed);*/
 
-		if (input_->PushKey(DIK_W)) {
-			move = {0, kEyeSpeed, 0};
-		} else if (input_->PushKey(DIK_S)) {
-			move = {0, -kEyeSpeed, 0};
+	//資料
+	if (input_->PushKey(DIK_LSHIFT)) {
+		if (input_->PushKey(DIK_UP)) {
+			ViewProjection_.nearZ += 0.1f;
 		}
-
-		if (input_->PushKey(DIK_R)) {
-			move = {0, 0, kEyeSpeed};
-		} else if (input_->PushKey(DIK_F)) {
-			move = {0, 0, -kEyeSpeed};
+		if (input_->PushKey(DIK_DOWN)) {
+			ViewProjection_.nearZ -= 0.1f;
 		}
-		//移動速度の加算
-		ViewProjection_.target.x += move.x;
-		ViewProjection_.target.y += move.y;
-		ViewProjection_.target.z += move.z;
 	} 
-	//シフト押してないときはカメラの場所移動
 	else {
-		//キー入力
-		if (input_->PushKey(DIK_D)) {
-			move = {kEyeSpeed, 0, 0};
-		} else if (input_->PushKey(DIK_A)) {
-			move = {-kEyeSpeed, 0, 0};
+		if (input_->PushKey(DIK_UP)) {
+			ViewProjection_.fovAngleY += 0.01f;
+			ViewProjection_.fovAngleY = min(ViewProjection_.fovAngleY, XM_PI);
 		}
-
-		if (input_->PushKey(DIK_W)) {
-			move = {0, kEyeSpeed, 0};
-		} else if (input_->PushKey(DIK_S)) {
-			move = {0, -kEyeSpeed, 0};
+		if (input_->PushKey(DIK_DOWN)) {
+			ViewProjection_.fovAngleY -= 0.01f;
+			ViewProjection_.fovAngleY = max(ViewProjection_.fovAngleY, 0.01f);
 		}
-
-		if (input_->PushKey(DIK_R)) {
-			move = {0, 0, kEyeSpeed};
-		} else if (input_->PushKey(DIK_F)) {
-			move = {0, 0, -kEyeSpeed};
-		}
-		//移動速度の加算
-		ViewProjection_.eye.x += move.x;
-		ViewProjection_.eye.y += move.y;
-		ViewProjection_.eye.z += move.z;
-	}*/
-
-	//↓↓課題部分
-	//視点移動
-	if (input_->PushKey(DIK_W)) {
-		move = {0, kEyeSpeed, 0};
-	} else if (input_->PushKey(DIK_S)) {
-		move = {0, -kEyeSpeed, 0};
 	}
 
-	//注点移動
-	if (input_->PushKey(DIK_RIGHT)) {
-		move = {kEyeSpeed, 0, 0};
-	} else if (input_->PushKey(DIK_LEFT)) {
-		move = {-kEyeSpeed, 0, 0};
-	}
-
-	//代入
-	ViewProjection_.target.x += move.x;
-	ViewProjection_.target.y += move.y;
-	ViewProjection_.target.z += move.z;
-
-	ViewProjection_.eye.x += move.x;
-	ViewProjection_.eye.y += move.y;
-	ViewProjection_.eye.z += move.z;
-
-	//上方向の回転速度の速さ
-	const float kUpRotSpeed = 0.05f;
-
-	if (input_->PushKey(DIK_SPACE)) {
-		ViewAngle += kUpRotSpeed;
-		//2PIを超えたら0に戻す
-		ViewAngle = fmodf(ViewAngle, XM_2PI);
-	}
-
-	//上方向ベクトルを計算（半径1の円周上の座標
-	ViewProjection_.up = {cosf(ViewAngle), sinf(ViewAngle), 0.0f};
+	//デバッグ
+	debugText_->SetPos(50, 100);
+	debugText_->Printf("fovAngleY(Degree):%f", XMConvertToDegrees(ViewProjection_.fovAngleY));
 
 	//更新
 	ViewProjection_.UpdateMatrix();
 
-	debugText_->SetPos(50, 50);
-	debugText_->Printf(
-	  "eye:(%f,%f,%f)\ntarget:(%f,%f,%f)", ViewProjection_.eye.x, ViewProjection_.eye.y, ViewProjection_.eye.z,
-		ViewProjection_.target.x, ViewProjection_.target.y, ViewProjection_.target.z);
 }
 
 void GameScene::Draw() {
