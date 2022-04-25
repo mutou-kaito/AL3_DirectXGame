@@ -65,8 +65,9 @@ void GameScene::Update() {
 	XMFLOAT3 move = {0, 0, 0};
 	//移動速度の初期化
 	const float kEyeSpeed = 0.2f;
+	
 	//シフト押してるときはカメラのターゲット移動
-	if (input_->PushKey(DIK_LSHIFT)) {
+	/* if (input_->PushKey(DIK_LSHIFT)) {
 		//キー入力
 		if (input_->PushKey(DIK_D)) {
 			move = {kEyeSpeed, 0, 0};
@@ -114,7 +115,31 @@ void GameScene::Update() {
 		ViewProjection_.eye.x += move.x;
 		ViewProjection_.eye.y += move.y;
 		ViewProjection_.eye.z += move.z;
+	}*/
+
+	//↓↓課題部分
+	//視点移動
+	if (input_->PushKey(DIK_W)) {
+		move = {0, kEyeSpeed, 0};
+	} else if (input_->PushKey(DIK_S)) {
+		move = {0, -kEyeSpeed, 0};
 	}
+
+	//注点移動
+	if (input_->PushKey(DIK_RIGHT)) {
+		move = {kEyeSpeed, 0, 0};
+	} else if (input_->PushKey(DIK_LEFT)) {
+		move = {-kEyeSpeed, 0, 0};
+	}
+
+	//代入
+	ViewProjection_.target.x += move.x;
+	ViewProjection_.target.y += move.y;
+	ViewProjection_.target.z += move.z;
+
+	ViewProjection_.eye.x += move.x;
+	ViewProjection_.eye.y += move.y;
+	ViewProjection_.eye.z += move.z;
 
 	//上方向の回転速度の速さ
 	const float kUpRotSpeed = 0.05f;
