@@ -148,30 +148,33 @@ void GameScene::Update() {
 	else if (input_->PushKey(DIK_S) && ViewProjection_.fovAngleY > 0.02)
 		ViewProjection_.fovAngleY -= XMConvertToRadians(FovSpeed);*/
 
-	//資料
-	if (input_->PushKey(DIK_LSHIFT)) {
-		if (input_->PushKey(DIK_UP)) {
-			ViewProjection_.nearZ += 0.1f;
-		}
-		if (input_->PushKey(DIK_DOWN)) {
-			ViewProjection_.nearZ -= 0.1f;
-		}
-	} 
-	else {
-		if (input_->PushKey(DIK_UP)) {
-			ViewProjection_.fovAngleY += 0.01f;
-			ViewProjection_.fovAngleY = min(ViewProjection_.fovAngleY, XM_PI);
-		}
-		if (input_->PushKey(DIK_DOWN)) {
-			ViewProjection_.fovAngleY -= 0.01f;
-			ViewProjection_.fovAngleY = max(ViewProjection_.fovAngleY, 0.01f);
-		}
+	if (input_->PushKey(DIK_UP)) {
+		ViewProjection_.nearZ += 0.1f;
+	}
+	if (input_->PushKey(DIK_DOWN)) {
+		ViewProjection_.nearZ -= 0.1f;
+	}
+
+	if (input_->PushKey(DIK_W)) {
+		ViewProjection_.fovAngleY += 0.01f;
+		ViewProjection_.fovAngleY = min(ViewProjection_.fovAngleY, XM_PI);
+	}
+	if (input_->PushKey(DIK_S)) {
+		ViewProjection_.fovAngleY -= 0.01f;
+		ViewProjection_.fovAngleY = max(ViewProjection_.fovAngleY, 0.01f);
 	}
 
 	//デバッグ
+	debugText_->SetPos(50, 25);
+	debugText_->Printf("eye:%f : %f : %f", ViewProjection_.eye.x, ViewProjection_.eye.y, ViewProjection_.eye.z);
+	debugText_->SetPos(50, 50);
+	debugText_->Printf("Target:%f : %f : %f", ViewProjection_.target.x, ViewProjection_.target.y, ViewProjection_.target.z);
+	debugText_->SetPos(50, 75);
+	debugText_->Printf("UP:%f : %f : %f", ViewProjection_.up.x, ViewProjection_.up.y, ViewProjection_.up.z);
 	debugText_->SetPos(50, 100);
 	debugText_->Printf("fovAngleY(Degree):%f", XMConvertToDegrees(ViewProjection_.fovAngleY));
-
+	debugText_->SetPos(50, 125);
+	debugText_->Printf("neerZ:%f", ViewProjection_.nearZ);
 	//更新
 	ViewProjection_.UpdateMatrix();
 
