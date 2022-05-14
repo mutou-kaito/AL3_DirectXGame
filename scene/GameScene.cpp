@@ -96,13 +96,13 @@ void GameScene::Update() {
 	if (input_->PushKey(DIK_U)) {
 	WorldTransform_[PartId::Chest].rotation_.y -= kRotSpeed;
 	
-	//Rootのほうを回転させたら斜め移動するようになると思うから試してみる
+	//Rootのほうを回転させたら斜め移動するようになると思ったから試してみる
 	//ならんかった、つまんね
+	//モデルの描画角度を回転させただけだからか
 	//WorldTransform_[PartId::Root].rotation_.y -= kRotSpeed;
 	}else if (input_->PushKey(DIK_I)) {	
 	WorldTransform_[PartId::Chest].rotation_.y += kRotSpeed;
 	
-	// Rootのほうを回転させたら斜め移動するようになると思うから試してみる
 	//WorldTransform_[PartId::Root].rotation_.y += kRotSpeed;
 	}
 	//下半身
