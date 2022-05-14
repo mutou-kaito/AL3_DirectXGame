@@ -23,158 +23,110 @@ void GameScene::Initialize() {
 	TextureHandle_ = TextureManager::Load("AL3_01_02\\mario.jpg");
 	model_ = Model::Create();
 	
-	//乱数シードの生成器
-	random_device seed_gen;
-	//メルセンヌ・ツイスター
-	mt19937_64 engine(seed_gen());
-	//乱数範囲（回転角用(最少値、最大値
-	uniform_real_distribution<float> rotDist(0.0f, XM_2PI);
-	//乱数範囲（座標用
-	uniform_real_distribution<float> posDist(-10.0f, 10.0f);
+	//僕のイメージ的にモデルの中心、原点は腰の骨盤と背骨の接合点？あたりか、みぞおちあたり
+	// 今回は原点を腰にする
+	//親　原点
+	WorldTransform_[0].Initialize();
+	//子　背骨
+	WorldTransform_[1].translation_ = {0, 3.0f, 0};
+	WorldTransform_[1].parent_ = &WorldTransform_[0];
+	WorldTransform_[1].Initialize();
 
-	for (int i = 0; i < 100; i++) {
-		//モデル大きさもともとは（1.0f,1.0f,1.0f）なんだと思う
-		// x,y,zの順番で横幅、高さ、奥行
-		//下のWorldTransdorm_.Initialize();より上に書かないといけない
-		WorldTransdorm_[i].scale_ = {1.0f, 1.0f, 1.0f};
+	//背骨の子
+	//胸
+	WorldTransform_[2].parent_ = &WorldTransform_[1];
+	WorldTransform_[2].Initialize();
+	//胸の子
+	//頭
+	WorldTransform_[3].translation_ = {0, 3.0f, 0};
+	WorldTransform_[3].parent_ = &WorldTransform_[2];
+	WorldTransform_[3].Initialize();
+	//左手
+	WorldTransform_[4].translation_ = {3.0f, 0, 0};
+	WorldTransform_[4].parent_ = &WorldTransform_[2];
+	WorldTransform_[4].Initialize();
+	//右手
+	WorldTransform_[5].translation_ = {-3.0f, 0, 0};
+	WorldTransform_[5].parent_ = &WorldTransform_[2];
+	WorldTransform_[5].Initialize();
 
-		// XM_PIはラジアン表記（3.141592は度数法で180度、それを4で割ったら45度。だからしたのは45度y軸回転させてる
-		WorldTransdorm_[i].rotation_ = {rotDist(engine), rotDist(engine), rotDist(engine)};
-		//度数法の角度で指定したい場合は下のように書く
-		// WorldTransdorm_.rotation_ = {0.0f, XMConvertToRadians(45.0f), 0.0f};
+	//原点の子
+	//お尻
+	WorldTransform_[6].translation_ = {0, 0, 0};
+	WorldTransform_[6].parent_ = &WorldTransform_[0];
+	WorldTransform_[6].Initialize();
+	//お尻の子
+	//左足
+	WorldTransform_[7].translation_ = {3.0f, -3.0f, 0};
+	WorldTransform_[7].parent_ = &WorldTransform_[6];
+	WorldTransform_[7].Initialize();
+	//右足
+	WorldTransform_[8].translation_ = {-3.0f, -3.0f, 0};
+	WorldTransform_[8].parent_ = &WorldTransform_[6];
+	WorldTransform_[8].Initialize();
 
-		//モデルがワールドのどこにいるのかの指定
-		WorldTransdorm_[i].translation_ = {posDist(engine), posDist(engine), posDist(engine)};
 
-		//モデル周りの初期化
-		WorldTransdorm_[i].Initialize();
-	}
-
-	//カメラ周りの初期化
-	ViewProjection_.fovAngleY = XMConvertToRadians(10.0f);
-	//アスペクト比、画面の高さと幅の比率、幅/縦で出す
-	ViewProjection_.aspectRatio = 1.5f;
-	//ニアクリップ、ファークリップ、描画する範囲（奥行）
-	//ニアクリップ、描画する一番近いところ
-	ViewProjection_.nearZ = 52.0f;
-	//ファークリップ、描画する一番遠いところ
-	ViewProjection_.farZ = 53.0f;
 
 	ViewProjection_.Initialize();
 
 }
 
-void GameScene::Update() {
-	#pragma region//02_02の内容だからコメントアウト
-	////カメラ移動速度用の変数の宣言
-	//XMFLOAT3 move = {0, 0, 0};
-	////移動速度の初期化
-	//const float kEyeSpeed = 0.2f;
-	//
-	////シフト押してるときはカメラのターゲット移動
-	// if (input_->PushKey(DIK_LSHIFT)) {
-	//	//キー入力
-	//	if (input_->PushKey(DIK_D)) {
-	//		move = {kEyeSpeed, 0, 0};
-	//	} else if (input_->PushKey(DIK_A)) {
-	//		move = {-kEyeSpeed, 0, 0};
-	//	}
+void GameScene::Update() { 
+	//キャラクターの移動用ベクトル
+	XMFLOAT3 move = {0, 0, 0};
 
-	//	if (input_->PushKey(DIK_W)) {
-	//		move = {0, kEyeSpeed, 0};
-	//	} else if (input_->PushKey(DIK_S)) {
-	//		move = {0, -kEyeSpeed, 0};
-	//	}
+	//キャラクターの移動速度
+	const float kCaracterSpeed = 0.2f;
 
-	//	if (input_->PushKey(DIK_R)) {
-	//		move = {0, 0, kEyeSpeed};
-	//	} else if (input_->PushKey(DIK_F)) {
-	//		move = {0, 0, -kEyeSpeed};
-	//	}
-	//	//移動速度の加算
-	//	ViewProjection_.target.x += move.x;
-	//	ViewProjection_.target.y += move.y;
-	//	ViewProjection_.target.z += move.z;
-	//} 
-	////シフト押してないときはカメラの場所移動
-	//else {
-	//	//キー入力
-	//	if (input_->PushKey(DIK_D)) {
-	//		move = {kEyeSpeed, 0, 0};
-	//	} else if (input_->PushKey(DIK_A)) {
-	//		move = {-kEyeSpeed, 0, 0};
-	//	}
-
-	//	if (input_->PushKey(DIK_W)) {
-	//		move = {0, kEyeSpeed, 0};
-	//	} else if (input_->PushKey(DIK_S)) {
-	//		move = {0, -kEyeSpeed, 0};
-	//	}
-
-	//	if (input_->PushKey(DIK_R)) {
-	//		move = {0, 0, kEyeSpeed};
-	//	} else if (input_->PushKey(DIK_F)) {
-	//		move = {0, 0, -kEyeSpeed};
-	//	}
-	//	//移動速度の加算
-	//	ViewProjection_.eye.x += move.x;
-	//	ViewProjection_.eye.y += move.y;
-	//	ViewProjection_.eye.z += move.z;
-	//}
-
-	////上方向の回転速度の速さ
-	//const float kUpRotSpeed = 0.05f;
-
-	//if (input_->PushKey(DIK_SPACE)) {
-	//	ViewAngle += kUpRotSpeed;
-	//	//2PIを超えたら0に戻す
-	//	ViewAngle = fmodf(ViewAngle, XM_2PI);
-	//}
-
-	////上方向ベクトルを計算（半径1の円周上の座標
-	//ViewProjection_.up = {cosf(ViewAngle), sinf(ViewAngle), 0.0f};
-
-
-	//debugText_->SetPos(50, 50);
-	//debugText_->Printf(
-	//  "eye:(%f,%f,%f)\ntarget:(%f,%f,%f)", ViewProjection_.eye.x, ViewProjection_.eye.y, ViewProjection_.eye.z,
-	//	ViewProjection_.target.x, ViewProjection_.target.y, ViewProjection_.target.z);
-	#pragma endregion
-	
-	//自作
-	/*float FovSpeed = 0.02f;
-	if (input_->PushKey(DIK_W) && ViewProjection_.fovAngleY < 3.14)
-		ViewProjection_.fovAngleY += XMConvertToRadians(FovSpeed);
-	else if (input_->PushKey(DIK_S) && ViewProjection_.fovAngleY > 0.02)
-		ViewProjection_.fovAngleY -= XMConvertToRadians(FovSpeed);*/
-
-	//資料
-	if (input_->PushKey(DIK_LSHIFT)) {
-		if (input_->PushKey(DIK_UP)) {
-			ViewProjection_.nearZ += 0.1f;
-		}
-		if (input_->PushKey(DIK_DOWN)) {
-			ViewProjection_.nearZ -= 0.1f;
-		}
-	} 
-	else {
-		if (input_->PushKey(DIK_UP)) {
-			ViewProjection_.fovAngleY += 0.01f;
-			ViewProjection_.fovAngleY = min(ViewProjection_.fovAngleY, XM_PI);
-		}
-		if (input_->PushKey(DIK_DOWN)) {
-			ViewProjection_.fovAngleY -= 0.01f;
-			ViewProjection_.fovAngleY = max(ViewProjection_.fovAngleY, 0.01f);
-		}
+	//押した方向で移動ベクトル
+	if (input_->PushKey(DIK_LEFT)) {
+		move = {-kCaracterSpeed, 0, 0};
+	} else if (input_->PushKey(DIK_RIGHT)) {
+		move = {kCaracterSpeed, 0, 0};
 	}
 
-	//デバッグ
-	debugText_->SetPos(50, 100);
-	debugText_->Printf("fovAngleY(Degree):%f", XMConvertToDegrees(ViewProjection_.fovAngleY));
+	//ワールドトランスフォームの移動
+	WorldTransform_[PartId::Root].translation_.x += move.x;
+	WorldTransform_[PartId::Root].translation_.y += move.y;
+	WorldTransform_[PartId::Root].translation_.z += move.z;
 
-	//更新
-	ViewProjection_.UpdateMatrix();
+	//回転
+	const float kRotSpeed = 0.05f;
+	//上半身
+	if (input_->PushKey(DIK_U)) {
+	WorldTransform_[PartId::Chest].rotation_.y -= kRotSpeed;
+	
+	//Rootのほうを回転させたら斜め移動するようになると思うから試してみる
+	//ならんかった、つまんね
+	//WorldTransform_[PartId::Root].rotation_.y -= kRotSpeed;
+	}else if (input_->PushKey(DIK_I)) {	
+	WorldTransform_[PartId::Chest].rotation_.y += kRotSpeed;
+	
+	// Rootのほうを回転させたら斜め移動するようになると思うから試してみる
+	//WorldTransform_[PartId::Root].rotation_.y += kRotSpeed;
+	}
+	//下半身
+	if (input_->PushKey(DIK_J)) {	
+	WorldTransform_[PartId::Hip].rotation_.y -= kRotSpeed;
+	}else if (input_->PushKey(DIK_K)) {	
+	WorldTransform_[PartId::Hip].rotation_.y += kRotSpeed;
+	}
 
+
+	//デバッグ用の表示
+	debugText_->SetPos(50, 150);
+	debugText_->Printf(
+	  "root:(%f,%f,%f)", 
+		WorldTransform_[PartId::Root].translation_.x,
+		WorldTransform_[PartId::Root].translation_.y, 
+		WorldTransform_[PartId::Root].translation_.z);
+
+
+
+	//ワールドトランスフォームの更新
+	for (int i = 0; i < 9; i++) {
+		WorldTransform_[i].UpdateMatrix();
+	}
 }
 
 void GameScene::Draw() {
@@ -205,8 +157,8 @@ void GameScene::Draw() {
 	/// ここに3Dオブジェクトの描画処理を追加できる
 	/// </summary>
 	 
-	for (int i = 0; i < 100; i++) {
-		model_->Draw(WorldTransdorm_[i], ViewProjection_, TextureHandle_);
+	for (int i = 2; i < 9; i++) {
+		model_->Draw(WorldTransform_[i], ViewProjection_, TextureHandle_);
 	}
 	// 3Dオブジェクト描画後処理
 	Model::PostDraw();

@@ -59,10 +59,24 @@ class GameScene {
 	Model* model_ = nullptr;
 
 	//モデルがワールド内のどこにいるかの宣言用
-	WorldTransform WorldTransdorm_[100];
+	WorldTransform WorldTransform_[9];
 	//カメラの座標
 	ViewProjection ViewProjection_;
 
-	float ViewAngle = 0.0f;
+
+
+	public:
+	//パーツID
+		enum PartId {
+			Root,
+			Spine,
+			Chest,
+			Head,
+			ArmL,
+			ArmR,
+			Hip,
+			LegL,
+			LegR
+	  };
 	
 };
