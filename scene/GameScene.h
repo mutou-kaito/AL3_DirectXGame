@@ -59,7 +59,7 @@ class GameScene {
 	Model* model_ = nullptr;
 
 	//モデルがワールド内のどこにいるかの宣言用
-	WorldTransform WorldTransdorm_[100];
+	WorldTransform WorldTransform_[20];
 	//カメラの座標
 	ViewProjection ViewProjection_;
 

@@ -23,38 +23,27 @@ void GameScene::Initialize() {
 	TextureHandle_ = TextureManager::Load("AL3_01_02\\mario.jpg");
 	model_ = Model::Create();
 	
-	//乱数シードの生成器
-	random_device seed_gen;
-	//メルセンヌ・ツイスター
-	mt19937_64 engine(seed_gen());
-	//乱数範囲（回転角用(最少値、最大値
-	uniform_real_distribution<float> rotDist(0.0f, XM_2PI);
-	//乱数範囲（座標用
-	uniform_real_distribution<float> posDist(-10.0f, 10.0f);
 
-	for (int i = 0; i < 100; i++) {
-		//モデル大きさもともとは（1.0f,1.0f,1.0f）なんだと思う
-		// x,y,zの順番で横幅、高さ、奥行
-		//下のWorldTransdorm_.Initialize();より上に書かないといけない
-		WorldTransdorm_[i].scale_ = {1.0f, 1.0f, 1.0f};
-
-		// XM_PIはラジアン表記（3.141592は度数法で180度、それを4で割ったら45度。だからしたのは45度y軸回転させてる
-		WorldTransdorm_[i].rotation_ = {rotDist(engine), rotDist(engine), rotDist(engine)};
-		//度数法の角度で指定したい場合は下のように書く
-		// WorldTransdorm_.rotation_ = {0.0f, XMConvertToRadians(45.0f), 0.0f};
+	for (int i = 0; i < 10; i++) {
+		WorldTransform_[i].scale_ = {1.0f, 1.0f, 1.0f};
+		WorldTransform_[i + 10].scale_ = {1.0f, 1.0f, 1.0f};
 
 		//モデルがワールドのどこにいるのかの指定
-		WorldTransdorm_[i].translation_ = {posDist(engine), posDist(engine), posDist(engine)};
+		float num = -5 + i*2;
+
+		WorldTransform_[i].translation_ = {num, -4.0f, 0.0f};
+		WorldTransform_[i + 10].translation_ = {num, 4.0f, 0.0f};
 
 		//モデル周りの初期化
-		WorldTransdorm_[i].Initialize();
+		WorldTransform_[i].Initialize();
+		WorldTransform_[i + 10].Initialize();
 	}
 	//カメラの場所
-	ViewProjection_.eye = {0, 0, -10};
+	ViewProjection_.eye = {0, 0, 10};
 	//カメラの見てる場所（ターゲットの場所
-	ViewProjection_.target = {10, 0, 0};
+	ViewProjection_.target = {0, 0, 0};
 	//カメラの上方向ベクトル
-	ViewProjection_.up = {cosf(XM_PI / 4.0f), sinf(XM_PI / 4.0f), 0.0f};
+	//ViewProjection_.up = {1.0f, 1.0f, 1.0f};
 
 	ViewProjection_.Initialize();
 
@@ -66,57 +55,6 @@ void GameScene::Update() {
 	//移動速度の初期化
 	const float kEyeSpeed = 0.2f;
 	
-	//シフト押してるときはカメラのターゲット移動
-	/* if (input_->PushKey(DIK_LSHIFT)) {
-		//キー入力
-		if (input_->PushKey(DIK_D)) {
-			move = {kEyeSpeed, 0, 0};
-		} else if (input_->PushKey(DIK_A)) {
-			move = {-kEyeSpeed, 0, 0};
-		}
-
-		if (input_->PushKey(DIK_W)) {
-			move = {0, kEyeSpeed, 0};
-		} else if (input_->PushKey(DIK_S)) {
-			move = {0, -kEyeSpeed, 0};
-		}
-
-		if (input_->PushKey(DIK_R)) {
-			move = {0, 0, kEyeSpeed};
-		} else if (input_->PushKey(DIK_F)) {
-			move = {0, 0, -kEyeSpeed};
-		}
-		//移動速度の加算
-		ViewProjection_.target.x += move.x;
-		ViewProjection_.target.y += move.y;
-		ViewProjection_.target.z += move.z;
-	} 
-	//シフト押してないときはカメラの場所移動
-	else {
-		//キー入力
-		if (input_->PushKey(DIK_D)) {
-			move = {kEyeSpeed, 0, 0};
-		} else if (input_->PushKey(DIK_A)) {
-			move = {-kEyeSpeed, 0, 0};
-		}
-
-		if (input_->PushKey(DIK_W)) {
-			move = {0, kEyeSpeed, 0};
-		} else if (input_->PushKey(DIK_S)) {
-			move = {0, -kEyeSpeed, 0};
-		}
-
-		if (input_->PushKey(DIK_R)) {
-			move = {0, 0, kEyeSpeed};
-		} else if (input_->PushKey(DIK_F)) {
-			move = {0, 0, -kEyeSpeed};
-		}
-		//移動速度の加算
-		ViewProjection_.eye.x += move.x;
-		ViewProjection_.eye.y += move.y;
-		ViewProjection_.eye.z += move.z;
-	}*/
-
 	//↓↓課題部分
 	//視点移動
 	if (input_->PushKey(DIK_W)) {
@@ -190,8 +128,8 @@ void GameScene::Draw() {
 	/// ここに3Dオブジェクトの描画処理を追加できる
 	/// </summary>
 	 
-	for (int i = 0; i < 100; i++) {
-		model_->Draw(WorldTransdorm_[i], ViewProjection_, TextureHandle_);
+	for (int i = 0; i < 20; i++) {
+		model_->Draw(WorldTransform_[i], ViewProjection_, TextureHandle_);
 	}
 	// 3Dオブジェクト描画後処理
 	Model::PostDraw();
